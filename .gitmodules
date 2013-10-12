@@ -1,0 +1,3 @@
+[submodule "em-training-example"]
+	path = em-training-example
+	url = git@github.com:dmonopoly/em-training-example.git
