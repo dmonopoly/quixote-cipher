@@ -5,12 +5,15 @@
 #include <map>
 #include <vector>
 
-#include "BasicHelper.h"
-#include "NLPHelper.h"
-#include "Notation.h"
-#include "Node.h"
-#include "Edge.h"
+#include "em-training-example/BasicHelper.h"
+#include "em-training-example/NLPHelper.h"
+#include "em-training-example/Notation.h"
+#include "em-training-example/Node.h"
+#include "em-training-example/Edge.h"
+
+#include "TagGrammarFinder.h"
 
 int main() {
+  cout << "HEY THERE!" << endl;
   return 0;
 }
