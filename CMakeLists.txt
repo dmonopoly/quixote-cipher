@@ -1,3 +1,4 @@
+# CMakeLists for Quixote Cipher.
 cmake_minimum_required(VERSION 2.8)
 
 # Options. Turn on with cmake -Dmyvarname=ON.
@@ -16,6 +17,8 @@ add_library(nlp_helper_lib em-training-example/NLPHelper.cc)
 add_library(notation_lib em-training-example/Notation.cc)
 add_library(edge_lib em-training-example/Edge.cc)
 add_library(tag_grammar_finder_lib TagGrammarFinder.cc)
+add_library(graph_aid_lib GraphAid.cc)
+add_library(trellis_aid_lib TrellisAid.cc)
 
 add_executable(${TAG_GRAMMAR_FINDER} TagGrammarFinder.cc)
 add_executable(${PROJECT_NAME} Main.cc)
@@ -29,7 +32,9 @@ target_link_libraries(${PROJECT_NAME}
                       basic_helper_lib
                       notation_lib
                       edge_lib
-                      tag_grammar_finder_lib)
+                      tag_grammar_finder_lib
+                      graph_aid_lib
+                      trellis_aid_lib)
 
 # Testing.
 if (test)

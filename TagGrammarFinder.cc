@@ -5,7 +5,7 @@
 
 #define EXTRA_PRINTING false
 
-void TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
+bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
                                               map<string, double> *data) {
   ifstream fin(filename.c_str());
   if (fin.fail())
