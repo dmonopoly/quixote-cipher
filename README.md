@@ -20,5 +20,14 @@ Compile using cmake. Example:
 Run the generated executable. Alternatively run any test executables, but make
 sure you do `cmake -Dtest=ON ..` first.
 
+Running Main:
+
+    ./sound-decipher ../GivenCounts/corpus.spanish.sound_bigrams.txt
+    ../GivenCounts/corpus.spanish.quixote.written.txt
+
+CypherReader can be compiled and run independently:
+
+    clang++ -std=c++11 -stdlib=libc++ CypherReader.cc
+
 ### Examples
 TODO

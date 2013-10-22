@@ -6,12 +6,16 @@
 #define EXTRA_PRINTING false
 
 bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
-                                              map<string, double> *data) {
+                                              map<string, double> *data,
+                                              vector<string> *tag_list) {
   ifstream fin(filename.c_str());
-  if (fin.fail())
+  if (fin.fail()) {
     cerr << "Could not open file " << filename << endl;
-  else {
+    return false;
+  } else {
     set<string> sounds;
+    // TODO
+    map<string, int> unigram_counts; // Key: Notation string repr.
     map<string, int> bigram_counts; // Key: Notation string repr.
     // Read bigram counts from file.
     int count;
@@ -28,54 +32,79 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
       sound2 = sound2.substr(1, sound2.size() - 2);
       sounds.insert(sound1);
       sounds.insert(sound2);
-      Notation nc("C", {sound1}, TagGrammarFinder::SEQ_DELIM, {sound2});
-      Notation nc_total(SIGMA + "C", {sound1}, TagGrammarFinder::SEQ_DELIM,
+      // TODO
+//       Notation n_count("C", {sound1});
+
+      Notation n_count_seq("C", {sound1}, TagGrammarFinder::SEQ_DELIM, {sound2});
+
+//       Notation n_count_total(SIGMA + "C", {sound1}, TagGrammarFinder::SEQ_DELIM,
+          
+      Notation n_count_seq_total(SIGMA + "C", {sound1}, TagGrammarFinder::SEQ_DELIM,
           {ARB_SOUND_PLACEHOLDER});
-      bigram_counts[nc.repr()] = count; // should only encounter once 
-      bigram_counts[nc_total.repr()] += count;
+      bigram_counts[n_count_seq.repr()] = count; // should only encounter once 
+      bigram_counts[n_count_seq_total.repr()] += count;
     }
     fin.close();
 
     // Determine tag grammar probabilities.
     for (auto s1 = sounds.begin(); s1 != sounds.end(); ++s1) {
       for (auto s2 = sounds.begin(); s2 != sounds.end(); ++s2) {
-        Notation n("P", {*s2}, TagGrammarFinder::GIVEN_DELIM, {*s1});
-        Notation nc("C", {*s1}, TagGrammarFinder::SEQ_DELIM, {*s2});
-        Notation nc_total(SIGMA + "C", {*s1}, TagGrammarFinder::SEQ_DELIM,
+        Notation nGiven("P", {*s2}, TagGrammarFinder::GIVEN_DELIM, {*s1});
+        Notation n_count_seq("C", {*s1}, TagGrammarFinder::SEQ_DELIM, {*s2});
+        Notation n_count_seq_total(SIGMA + "C", {*s1}, TagGrammarFinder::SEQ_DELIM,
             {ARB_SOUND_PLACEHOLDER});
 
         // If no key found, then just set to 0.
-        if (bigram_counts.find(nc.repr()) == bigram_counts.end() ||
-            bigram_counts.find(nc_total.repr()) == bigram_counts.end()) {
+        if (bigram_counts.find(n_count_seq.repr()) == bigram_counts.end() ||
+            bigram_counts.find(n_count_seq_total.repr()) == bigram_counts.end()) {
           if (EXTRA_PRINTING) {
-            if (bigram_counts.find(nc.repr()) == bigram_counts.end())
-              cout << "Not found: " << nc.repr() << endl;
-            if (bigram_counts.find(nc_total.repr()) == bigram_counts.end())
-              cout << "Not found: " << nc_total.repr() << endl;
+            if (bigram_counts.find(n_count_seq.repr()) == bigram_counts.end())
+              cout << "Not found: " << n_count_seq.repr() << endl;
+            if (bigram_counts.find(n_count_seq_total.repr()) == bigram_counts.end())
+              cout << "Not found: " << n_count_seq_total.repr() << endl;
           }
-          (*data)[n.repr()] = 0;
+          (*data)[nGiven.repr()] = 0;
         } else {
           if (EXTRA_PRINTING)
-            cout << bigram_counts.at(nc.repr()) << "/" << bigram_counts.at(nc_total.repr()) << endl;
-          double val = (double) bigram_counts.at(nc.repr()) /
-            bigram_counts.at(nc_total.repr());
-          (*data)[n.repr()] = val;
+            cout << bigram_counts.at(n_count_seq.repr()) << "/" << bigram_counts.at(n_count_seq_total.repr()) << endl;
+          double val = (double) bigram_counts.at(n_count_seq.repr()) /
+            bigram_counts.at(n_count_seq_total.repr());
+          (*data)[nGiven.repr()] = val;
         }
       }
     }
+    // Store single probabilities, like P(B).
+    for (auto s1 = sounds.begin(); s1 != sounds.end(); ++s1) {
+      Notation nSingle("P", {*sr});
+
+    }
+
+    // Pass sounds to tag_list.
+    for (auto it = sounds.begin(); it != sounds.end(); ++it) {
+      tag_list->push_back(*it);
+    }
   }
+  return true;
 }
 
-int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    cerr << "No filename given." << endl;
-    return 0;
-  } 
-  string filename = argv[1];
-  map<string, double> data;
-  TagGrammarFinder::FindTagGrammarFromFile(filename, &data);
-  for (auto it = data.begin(); it != data.end(); ++it) {
-    cout << it->first << " " << it->second << endl;
-  }
-  return 0;
-}
+// Quick test, can uncomment and use.
+// int main(int argc, char *argv[]) {
+//   if (argc < 2) {
+//     cerr << "No filename given." << endl;
+//     return 0;
+//   } 
+//   string filename = argv[1];
+//   map<string, double> data;
+//   vector<string> tag_list;
+//   TagGrammarFinder::FindTagGrammarFromFile(filename, &data, &tag_list);
+//   cout << "Data:\n";
+//   for (auto it = data.begin(); it != data.end(); ++it) {
+//     cout << it->first << " " << it->second << endl;
+//   }
+//   cout << "Tag list:\n";
+//   for (auto it = tag_list.begin(); it != tag_list.end(); ++it) {
+//     cout << *it << ",";
+//   }
+//   cout << endl;
+//   return 0;
+// }

@@ -18,7 +18,8 @@ namespace TagGrammarFinder {
   const string SIGMA = "SUM_i "; // key helper for Notation
   const string ARB_SOUND_PLACEHOLDER = "s_i";
 
-  void FindTagGrammarFromFile(const string &filename,
-                              map<string, double> *data);
+  // Returns true if success.
+  bool FindTagGrammarFromFile(const string &filename, map<string, double> *data,
+                              vector<string> *tag_list);
 }
 #endif // End TAG_GRAMMAR_H_

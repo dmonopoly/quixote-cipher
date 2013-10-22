@@ -10,35 +10,50 @@
 #include "em-training-example/Notation.h"
 #include "em-training-example/Node.h"
 #include "em-training-example/Edge.h"
+#include "em-training-example/NotationConstants.h"
+#include "em-training-example/TrellisAid.h"
 
-#include "NotationConstants.h"
+#include "CypherReader.h"
 #include "TagGrammarFinder.h"
-#include "TrellisAid.h"
 
 #define NUMBER_ITERATIONS 3
 
-int main() {
-  string filename_for_bigrams = "GivenCounts/corpus.spanish.sound_bigrams";
+#define EXTRA_PRINTING true
+
+int main(int argc, char *argv[]) {
+  if (argc != 3) {
+    cerr << "Usage: ./<exec> <bigram-counts-file> <cyphertext>" << endl;
+    return 0;
+  }
+  string filename_for_bigrams = argv[1];
   map<string, double> data;  // Storage for probabilities and counts.
   vector<string> tag_list;
   bool found = TagGrammarFinder::FindTagGrammarFromFile(filename_for_bigrams,
                                                         &data, &tag_list);
   if (!found)
     return 0;
+  else if (EXTRA_PRINTING)
+    cout << "Found tag grammar.\n";
 
-  string filename_for_cypher = "GivenCounts/corpus.spanish.quixote.written";
+  string filename_for_cypher = argv[2];
   vector<string> observed_data;
   vector<Node *> nodes;
   vector<Edge *> edges_to_update;
   vector<Edge *> all_edges; // for deletion later
-  // TODO
   bool got_obs_data = CypherReader::GetObservedData(filename_for_cypher,
                                                     &observed_data);
   if (!got_obs_data)
     return 0;
+  else if (EXTRA_PRINTING)
+    cout << "Found cyphertext.\n";
 
   TrellisAid::BuildTrellis(&nodes, &edges_to_update, &all_edges, observed_data,
                            tag_list);
+  if (EXTRA_PRINTING)
+    cout << "Built trellis.\n";
+  for (auto it = data.begin(); it != data.end(); ++it) {
+    cout << it->first << " " << it->second << endl;
+  }
   TrellisAid::ForwardBackwardAndViterbi(NUMBER_ITERATIONS, nodes,
                                         edges_to_update, all_edges, &data);
 
