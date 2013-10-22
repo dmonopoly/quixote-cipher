@@ -3,7 +3,7 @@
 
 #include "TagGrammarFinder.h"
 
-#define DO_MAIN true
+#define DO_MAIN false
 
 #define EXTRA_PRINTING false
 

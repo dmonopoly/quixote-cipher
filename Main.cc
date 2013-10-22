@@ -20,11 +20,19 @@
 
 #define EXTRA_PRINTING true
 
-void PrepareWordTagProbs(map<string, double> *data,
+void PrepareObsTagProbs(map<string, double> *data,
                          const vector<string> &observed_data,
                          const vector<string> &tag_list) {
-  // TODO: set initial word/tag probabilities! P(g|B) doesn't show up!
-
+  // Sets initial observed char / tag probabilities. Can seed to .5 or
+  // randomize.
+  for (auto obs = observed_data.begin(); obs != observed_data.end(); ++obs) {
+    for (auto tag = tag_list.begin(); tag != tag_list.end(); ++tag) {
+      Notation nObsTagProb("P", {*obs}, Notation::GIVEN_DELIM, {*tag});
+      (*data)[nObsTagProb.repr()] = .5;
+    }
+  }
+  // Also seed NotationConstants.
+  (*data)[NotationConstants::p1.repr()] = 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -54,7 +62,7 @@ int main(int argc, char *argv[]) {
   else if (EXTRA_PRINTING)
     cout << "Found cyphertext.\n";
 
-  PrepareWordTagProbs(&data, observed_data, tag_list);
+  PrepareObsTagProbs(&data, observed_data, tag_list);
 
   TrellisAid::BuildTrellis(&nodes, &edges_to_update, &all_edges, observed_data,
                            tag_list);
