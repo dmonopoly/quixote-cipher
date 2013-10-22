@@ -20,6 +20,13 @@
 
 #define EXTRA_PRINTING true
 
+void PrepareWordTagProbs(map<string, double> *data,
+                         const vector<string> &observed_data,
+                         const vector<string> &tag_list) {
+  // TODO: set initial word/tag probabilities! P(g|B) doesn't show up!
+
+}
+
 int main(int argc, char *argv[]) {
   if (argc != 3) {
     cerr << "Usage: ./<exec> <bigram-counts-file> <cyphertext>" << endl;
@@ -46,6 +53,8 @@ int main(int argc, char *argv[]) {
     return 0;
   else if (EXTRA_PRINTING)
     cout << "Found cyphertext.\n";
+
+  PrepareWordTagProbs(&data, observed_data, tag_list);
 
   TrellisAid::BuildTrellis(&nodes, &edges_to_update, &all_edges, observed_data,
                            tag_list);

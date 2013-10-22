@@ -3,6 +3,8 @@
 
 #include "TagGrammarFinder.h"
 
+#define DO_MAIN true
+
 #define EXTRA_PRINTING false
 
 bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
@@ -14,12 +16,13 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
     return false;
   } else {
     set<string> sounds;
-    // TODO
     map<string, int> unigram_counts; // Key: Notation string repr.
     map<string, int> bigram_counts; // Key: Notation string repr.
     // Read bigram counts from file.
     int count;
     string sound1, sound2;
+    // SUM_i C(s_i)
+    Notation n_count_total(SIGMA + "C", {ARB_SOUND_PLACEHOLDER});
     while (true) {
       fin >> count;
       if (fin.eof())
@@ -32,21 +35,33 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
       sound2 = sound2.substr(1, sound2.size() - 2);
       sounds.insert(sound1);
       sounds.insert(sound2);
-      // TODO
-//       Notation n_count("C", {sound1});
 
       Notation n_count_seq("C", {sound1}, TagGrammarFinder::SEQ_DELIM, {sound2});
-
-//       Notation n_count_total(SIGMA + "C", {sound1}, TagGrammarFinder::SEQ_DELIM,
-          
       Notation n_count_seq_total(SIGMA + "C", {sound1}, TagGrammarFinder::SEQ_DELIM,
           {ARB_SOUND_PLACEHOLDER});
       bigram_counts[n_count_seq.repr()] = count; // should only encounter once 
       bigram_counts[n_count_seq_total.repr()] += count;
+
+      // Single probabilities. Treat C(s1) = SUM_i C(s1 s_i).
+      Notation n_count("C", {sound1});  // C(s1), followed by SUM_i C(s_i).
+      unigram_counts[n_count.repr()] += count;
+      unigram_counts[n_count_total.repr()] += count;
     }
     fin.close();
 
     // Determine tag grammar probabilities.
+    // Unigrams.
+    for (auto s1 = sounds.begin(); s1 != sounds.end(); ++s1) {
+      Notation nSingle("P", {*s1});
+      Notation n_count("C", {*s1});
+      try {
+        (*data)[nSingle.repr()] = (double) unigram_counts.at(n_count.repr()) / 
+                                  unigram_counts.at(n_count_total.repr());
+      } catch (out_of_range &e) {
+        cerr << "Out of range error in unigram stuff: " << e.what() << endl;
+      }
+    }
+    // Bigrams.
     for (auto s1 = sounds.begin(); s1 != sounds.end(); ++s1) {
       for (auto s2 = sounds.begin(); s2 != sounds.end(); ++s2) {
         Notation nGiven("P", {*s2}, TagGrammarFinder::GIVEN_DELIM, {*s1});
@@ -73,11 +88,6 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
         }
       }
     }
-    // Store single probabilities, like P(B).
-    for (auto s1 = sounds.begin(); s1 != sounds.end(); ++s1) {
-      Notation nSingle("P", {*sr});
-
-    }
 
     // Pass sounds to tag_list.
     for (auto it = sounds.begin(); it != sounds.end(); ++it) {
@@ -87,24 +97,26 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
   return true;
 }
 
-// Quick test, can uncomment and use.
-// int main(int argc, char *argv[]) {
-//   if (argc < 2) {
-//     cerr << "No filename given." << endl;
-//     return 0;
-//   } 
-//   string filename = argv[1];
-//   map<string, double> data;
-//   vector<string> tag_list;
-//   TagGrammarFinder::FindTagGrammarFromFile(filename, &data, &tag_list);
-//   cout << "Data:\n";
-//   for (auto it = data.begin(); it != data.end(); ++it) {
-//     cout << it->first << " " << it->second << endl;
-//   }
+// Quick test.
+#if DO_MAIN
+int main(int argc, char *argv[]) {
+  if (argc < 2) {
+    cerr << "No filename given." << endl;
+    return 0;
+  } 
+  string filename = argv[1];
+  map<string, double> data;
+  vector<string> tag_list;
+  TagGrammarFinder::FindTagGrammarFromFile(filename, &data, &tag_list);
+  cout << "Data:\n";
+  for (auto it = data.begin(); it != data.end(); ++it) {
+    cout << it->first << " " << it->second << endl;
+  }
 //   cout << "Tag list:\n";
 //   for (auto it = tag_list.begin(); it != tag_list.end(); ++it) {
 //     cout << *it << ",";
 //   }
-//   cout << endl;
-//   return 0;
-// }
+  cout << endl;
+  return 0;
+}
+#endif
