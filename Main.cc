@@ -66,13 +66,16 @@ int main(int argc, char *argv[]) {
 
   TrellisAid::BuildTrellis(&nodes, &edges_to_update, &all_edges, observed_data,
                            tag_list);
-  if (EXTRA_PRINTING)
+  if (EXTRA_PRINTING) {
     cout << "Built trellis.\n";
-  for (auto it = data.begin(); it != data.end(); ++it) {
-    cout << it->first << " " << it->second << endl;
+    // if you want to write probabilities
+//     for (auto it = data.begin(); it != data.end(); ++it) {
+//       cout << it->first << " " << it->second << endl;
+//     }
   }
   TrellisAid::ForwardBackwardAndViterbi(NUMBER_ITERATIONS, nodes,
-                                        edges_to_update, all_edges, &data);
+                                        edges_to_update, all_edges, &data,
+                                        observed_data);
 
   TrellisAid::DestroyTrellis(&nodes, &all_edges);
   return 0;

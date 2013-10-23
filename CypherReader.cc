@@ -12,7 +12,7 @@ bool CypherReader::GetObservedData(const string &filename,
       fin >> word;
       if (fin.eof())
         break;
-      if (word != "") {
+      if (!word.empty()) {
         word = word.substr(1, word.size() - 2);  // Remove quotes.
         observed_data->push_back(word);
       }
