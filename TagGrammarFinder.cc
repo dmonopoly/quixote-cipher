@@ -66,22 +66,26 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
       for (auto s2 = sounds.begin(); s2 != sounds.end(); ++s2) {
         Notation nGiven("P", {*s2}, TagGrammarFinder::GIVEN_DELIM, {*s1});
         Notation n_count_seq("C", {*s1}, TagGrammarFinder::SEQ_DELIM, {*s2});
-        Notation n_count_seq_total(SIGMA + "C", {*s1}, TagGrammarFinder::SEQ_DELIM,
-            {ARB_SOUND_PLACEHOLDER});
+        Notation n_count_seq_total(SIGMA + "C", {*s1},
+            TagGrammarFinder::SEQ_DELIM, {ARB_SOUND_PLACEHOLDER});
 
         // If no key found, then just set to 0.
         if (bigram_counts.find(n_count_seq.repr()) == bigram_counts.end() ||
-            bigram_counts.find(n_count_seq_total.repr()) == bigram_counts.end()) {
+            bigram_counts.find(n_count_seq_total.repr()) == bigram_counts.end())
+        {
           if (EXTRA_PRINTING) {
             if (bigram_counts.find(n_count_seq.repr()) == bigram_counts.end())
               cout << "Not found: " << n_count_seq.repr() << endl;
-            if (bigram_counts.find(n_count_seq_total.repr()) == bigram_counts.end())
+            if (bigram_counts.find(n_count_seq_total.repr()) ==
+                bigram_counts.end())
               cout << "Not found: " << n_count_seq_total.repr() << endl;
           }
           (*data)[nGiven.repr()] = 0;
         } else {
-          if (EXTRA_PRINTING)
-            cout << bigram_counts.at(n_count_seq.repr()) << "/" << bigram_counts.at(n_count_seq_total.repr()) << endl;
+          if (EXTRA_PRINTING) {
+            cout << bigram_counts.at(n_count_seq.repr()) << "/" <<
+              bigram_counts.at(n_count_seq_total.repr()) << endl;
+          }
           double val = (double) bigram_counts.at(n_count_seq.repr()) /
             bigram_counts.at(n_count_seq_total.repr());
           (*data)[nGiven.repr()] = val;
