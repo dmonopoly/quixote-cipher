@@ -1,7 +1,7 @@
 #include "CypherReader.h"
 
-bool CypherReader::GetObservedData(const string &filename,
-                                   vector<string> *observed_data) {
+bool CypherReader::GetObservedData(const string &filename, vector<string> *observed_data,
+                     set<string> *obs_symbols) {
   ifstream fin(filename.c_str());
   if (fin.fail()) {
     cerr << "Could not open file " << filename << endl;
@@ -15,13 +15,13 @@ bool CypherReader::GetObservedData(const string &filename,
       if (!word.empty()) {
         word = word.substr(1, word.size() - 2);  // Remove quotes.
         observed_data->push_back(word);
+        obs_symbols->insert(word);
       }
     }
     return true;
   }
 }
 
-// Quick test, can uncomment and use.
 // int main(int argc, char *argv[]) {
 //   if (argc < 2) {
 //     cerr << "No filename given." << endl;

@@ -2,7 +2,9 @@
 #include <ctime>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <map>
+#include <set>
 #include <vector>
 
 #include "em-training-example/BasicHelper.h"
@@ -16,33 +18,52 @@
 #include "CypherReader.h"
 #include "TagGrammarFinder.h"
 
+using namespace std;
+
 #define NUMBER_ITERATIONS 3
 
 #define EXTRA_PRINTING true
 
-void PrepareObsTagProbs(map<string, double> *data,
-                         const vector<string> &observed_data,
-                         const vector<string> &tag_list) {
-  // Sets initial observed char / tag probabilities. Can seed to .5 or
-  // randomize.
+void DisambiguateDuplicates(const set<string> &obs_symbols,
+                            vector<string> *tag_list,
+                            map<string, double> *data) {
+  // Alters all tags that have overlapping meanings with observed symbols.
+  for (auto i = obs_symbols.begin(); i != obs_symbols.end(); ++i) {
+    for (auto j = tag_list->begin(); j != tag_list->end(); ++j) {
+      cout << "comparing " << *i << " with " << *j << endl;
+      if (*i == *j) {
+        stringstream ss;
+        ss << *j << "'";
+        // TODO update data...
+        *j = ss.str();
+      }
+    }
+  }
+}
+
+void PrepareObsTagProbs(const vector<string> &observed_data,
+                        const vector<string> &tag_list,
+                        const set<string> &obs_symbols,
+                        map<string, double> *data) {
+  // Sets initial observed char / tag probabilities. Can seed to uniform
+  // probability (1/# of unique observed symbols) or randomize.
   for (auto obs = observed_data.begin(); obs != observed_data.end(); ++obs) {
     for (auto tag = tag_list.begin(); tag != tag_list.end(); ++tag) {
       Notation nObsTagProb("P", {*obs}, Notation::GIVEN_DELIM, {*tag});
-      // TODO: make 1 / number of uniq observed characters. also check too
-      // low...
-      (*data)[nObsTagProb.repr()] = .1;
+      (*data)[nObsTagProb.repr()] = (double) 1/obs_symbols.size();
     }
   }
-  // Deal with spaces in the substitute table: set P(any obs|space) to 0 and
-  // P(space|space) to 1.
+  // Deal with spaces in the substitute table: set P(any obs|space tag) to 0 and
+  // P(space tag|space obs) to 1.
   // "_" means "space" in the ciphertext letter sequence.
-  // "_" means "pause" in the spoken spanish plaintext.
+  // "_" means "pause" in the spoken spanish plaintext. Altered to "_'" for
+  // uniqueness in DisambiguateDuplicates.
   for (auto obs = observed_data.begin(); obs != observed_data.end(); ++obs) {
-    Notation nAnythingGivenSpace("P", {*obs}, Notation::GIVEN_DELIM, {"_"});
-    (*data)[nAnythingGivenSpace.repr()] = 0;
+    Notation nAnythingGivenSpaceTag("P", {*obs}, Notation::GIVEN_DELIM, {"_'"});
+    (*data)[nAnythingGivenSpaceTag.repr()] = 0;
   }
-  Notation nSpaceGivenSpace("P", {"_"}, Notation::GIVEN_DELIM, {"_"});
-  (*data)[nSpaceGivenSpace.repr()] = 1;
+  Notation nSpaceTagGivenSpaceObs("P", {"_'"}, Notation::GIVEN_DELIM, {"_"});
+  (*data)[nSpaceTagGivenSpaceObs.repr()] = 1;
 
   // Also seed NotationConstants.
   (*data)[NotationConstants::p1.repr()] = 1;
@@ -65,23 +86,32 @@ int main(int argc, char *argv[]) {
 
   string filename_for_cypher = argv[2];
   vector<string> observed_data;
+  set<string> obs_symbols;
   vector<Node *> nodes;
   vector<Edge *> edges_to_update;
   vector<Edge *> all_edges; // for deletion later
   bool got_obs_data = CypherReader::GetObservedData(filename_for_cypher,
-                                                    &observed_data);
+                                                    &observed_data,
+                                                    &obs_symbols);
   if (!got_obs_data)
     return 0;
   else if (EXTRA_PRINTING)
     cout << "Found cyphertext.\n";
 
-  PrepareObsTagProbs(&data, observed_data, tag_list);
+  DisambiguateDuplicates(obs_symbols, &tag_list, &data);
+//   cout << "new tags: \n";
+//   for (auto i = tag_list.begin(); i != tag_list.end(); ++i) {
+//     cout << *i << endl;
+//   }
+//   cout << "end tags\n";
+  PrepareObsTagProbs(observed_data, tag_list, obs_symbols, &data);
 
   TrellisAid::BuildTrellis(&nodes, &edges_to_update, &all_edges, observed_data,
                            tag_list);
   if (EXTRA_PRINTING) {
     cout << "Built trellis.\n";
     // if you want to write probabilities
+    cout << "printing probs...";
     for (auto it = data.begin(); it != data.end(); ++it) {
       cout << it->first << " " << it->second << endl;
     }

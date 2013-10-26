@@ -44,7 +44,6 @@ else ()
                         trellis_aid_lib)
 endif()
 
-
 # Testing.
 if (test)
 #   add_executable(notation_test NotationTest.cc)

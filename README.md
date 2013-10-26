@@ -31,3 +31,6 @@ CypherReader can be compiled and run independently:
 
 ### Examples
 TODO
+
+## Caveats
+Make sure tags do not have apostrophe in them.
