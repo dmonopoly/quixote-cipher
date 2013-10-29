@@ -8,7 +8,7 @@
 #define EXTRA_PRINTING false
 
 bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
-                                              map<string, double> *data,
+                                              map<Notation, double> *data,
                                               vector<string> *tag_list) {
   ifstream fin(filename.c_str());
   if (fin.fail()) {
@@ -16,8 +16,8 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
     return false;
   } else {
     set<string> sounds;
-    map<string, int> unigram_counts; // Key: Notation string repr.
-    map<string, int> bigram_counts; // Key: Notation string repr.
+    map<Notation, int> unigram_counts;
+    map<Notation, int> bigram_counts;
     // Read bigram counts from file.
     int count;
     string sound1, sound2;
@@ -39,13 +39,13 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
       Notation n_count_seq("C", {sound1}, TagGrammarFinder::SEQ_DELIM, {sound2});
       Notation n_count_seq_total(SIGMA + "C", {sound1}, TagGrammarFinder::SEQ_DELIM,
           {ARB_SOUND_PLACEHOLDER});
-      bigram_counts[n_count_seq.repr()] = count; // should only encounter once 
-      bigram_counts[n_count_seq_total.repr()] += count;
+      bigram_counts[n_count_seq] = count; // should only encounter once 
+      bigram_counts[n_count_seq_total] += count;
 
       // Single probabilities. Treat C(s1) = SUM_i C(s1 s_i).
       Notation n_count("C", {sound1});  // C(s1), followed by SUM_i C(s_i).
-      unigram_counts[n_count.repr()] += count;
-      unigram_counts[n_count_total.repr()] += count;
+      unigram_counts[n_count] += count;
+      unigram_counts[n_count_total] += count;
     }
     fin.close();
 
@@ -55,8 +55,8 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
       Notation nSingle("P", {*s1});
       Notation n_count("C", {*s1});
       try {
-        (*data)[nSingle.repr()] = (double) unigram_counts.at(n_count.repr()) / 
-                                  unigram_counts.at(n_count_total.repr());
+        (*data)[nSingle] = (double) unigram_counts.at(n_count) / 
+                                  unigram_counts.at(n_count_total);
       } catch (out_of_range &e) {
         cerr << "Out of range error in unigram stuff: " << e.what() << endl;
       }
@@ -70,25 +70,25 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
             TagGrammarFinder::SEQ_DELIM, {ARB_SOUND_PLACEHOLDER});
 
         // If no key found, then just set to 0.
-        if (bigram_counts.find(n_count_seq.repr()) == bigram_counts.end() ||
-            bigram_counts.find(n_count_seq_total.repr()) == bigram_counts.end())
+        if (bigram_counts.find(n_count_seq) == bigram_counts.end() ||
+            bigram_counts.find(n_count_seq_total) == bigram_counts.end())
         {
           if (EXTRA_PRINTING) {
-            if (bigram_counts.find(n_count_seq.repr()) == bigram_counts.end())
-              cout << "Not found: " << n_count_seq.repr() << endl;
-            if (bigram_counts.find(n_count_seq_total.repr()) ==
+            if (bigram_counts.find(n_count_seq) == bigram_counts.end())
+              cout << "Not found: " << n_count_seq << endl;
+            if (bigram_counts.find(n_count_seq_total) ==
                 bigram_counts.end())
-              cout << "Not found: " << n_count_seq_total.repr() << endl;
+              cout << "Not found: " << n_count_seq_total << endl;
           }
-          (*data)[nGiven.repr()] = 0;
+          (*data)[nGiven] = 0;
         } else {
           if (EXTRA_PRINTING) {
-            cout << bigram_counts.at(n_count_seq.repr()) << "/" <<
-              bigram_counts.at(n_count_seq_total.repr()) << endl;
+            cout << bigram_counts.at(n_count_seq) << "/" <<
+              bigram_counts.at(n_count_seq_total) << endl;
           }
-          double val = (double) bigram_counts.at(n_count_seq.repr()) /
-            bigram_counts.at(n_count_seq_total.repr());
-          (*data)[nGiven.repr()] = val;
+          double val = (double) bigram_counts.at(n_count_seq) /
+            bigram_counts.at(n_count_seq_total);
+          (*data)[nGiven] = val;
         }
       }
     }
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
     return 0;
   } 
   string filename = argv[1];
-  map<string, double> data;
+  map<Notation, double> data;
   vector<string> tag_list;
   TagGrammarFinder::FindTagGrammarFromFile(filename, &data, &tag_list);
   cout << "Data:\n";

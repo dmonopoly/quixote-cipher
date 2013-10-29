@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <utility>
 
 #include "em-training-example/BasicHelper.h"
 #include "em-training-example/NLPHelper.h"
@@ -26,16 +27,41 @@ using namespace std;
 
 void DisambiguateDuplicates(const set<string> &obs_symbols,
                             vector<string> *tag_list,
-                            map<string, double> *data) {
+                            map<Notation, double> *data) {
   // Alters all tags that have overlapping meanings with observed symbols.
+  // Updates data accordingly.
   for (auto i = obs_symbols.begin(); i != obs_symbols.end(); ++i) {
     for (auto j = tag_list->begin(); j != tag_list->end(); ++j) {
-      cout << "comparing " << *i << " with " << *j << endl;
+//       cout << "comparing " << *i << " with " << *j << endl;
       if (*i == *j) {
         stringstream ss;
         ss << *j << "'";
-        // TODO update data...
+        string old_val = *j;
         *j = ss.str();
+        string new_val = ss.str();
+        vector<pair<Notation, Notation> > values_to_replace; // old key, new key
+        Notation key;
+        for (auto data_pair = data->begin(); data_pair != data->end(); ++data_pair) {
+          key = data_pair->first;
+//           cout << "Inspecting key: " << key << endl;
+          size_t pos = key.repr().find(old_val);
+          if (pos != string::npos) {
+            Notation old_key = key;
+            NotationHelper::ReplaceSymbol(old_val, new_val, &key);
+//             cout << "changed key: " << key << endl;
+            values_to_replace.push_back(make_pair(old_key, key));
+          }
+        }
+        for (auto i = values_to_replace.begin(); i != values_to_replace.end(); ++i) {
+          Notation old_key = i->first;
+          Notation new_key = i->second; 
+          if (old_key.repr() != new_key.repr()) {
+            (*data)[new_key] = (*data)[old_key];
+//             cout << "altering keys: " << old_key << " to " << new_key << ", val=" << (*data)[new_key] << endl;
+            // REASON: erasing P(rr)!!!
+            data->erase(old_key);
+          }
+        }
       }
     }
   }
@@ -44,13 +70,13 @@ void DisambiguateDuplicates(const set<string> &obs_symbols,
 void PrepareObsTagProbs(const vector<string> &observed_data,
                         const vector<string> &tag_list,
                         const set<string> &obs_symbols,
-                        map<string, double> *data) {
+                        map<Notation, double> *data) {
   // Sets initial observed char / tag probabilities. Can seed to uniform
   // probability (1/# of unique observed symbols) or randomize.
   for (auto obs = observed_data.begin(); obs != observed_data.end(); ++obs) {
     for (auto tag = tag_list.begin(); tag != tag_list.end(); ++tag) {
       Notation nObsTagProb("P", {*obs}, Notation::GIVEN_DELIM, {*tag});
-      (*data)[nObsTagProb.repr()] = (double) 1/obs_symbols.size();
+      (*data)[nObsTagProb] = (double) 1/obs_symbols.size();
     }
   }
   // Deal with spaces in the substitute table: set P(any obs|space tag) to 0 and
@@ -60,13 +86,13 @@ void PrepareObsTagProbs(const vector<string> &observed_data,
   // uniqueness in DisambiguateDuplicates.
   for (auto obs = observed_data.begin(); obs != observed_data.end(); ++obs) {
     Notation nAnythingGivenSpaceTag("P", {*obs}, Notation::GIVEN_DELIM, {"_'"});
-    (*data)[nAnythingGivenSpaceTag.repr()] = 0;
+    (*data)[nAnythingGivenSpaceTag] = 0;
   }
   Notation nSpaceTagGivenSpaceObs("P", {"_'"}, Notation::GIVEN_DELIM, {"_"});
-  (*data)[nSpaceTagGivenSpaceObs.repr()] = 1;
+  (*data)[nSpaceTagGivenSpaceObs] = 1;
 
   // Also seed NotationConstants.
-  (*data)[NotationConstants::p1.repr()] = 1;
+  (*data)[NotationConstants::p1] = 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -75,7 +101,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
   string filename_for_bigrams = argv[1];
-  map<string, double> data;  // Storage for probabilities and counts.
+  map<Notation, double> data;  // Storage for probabilities and counts.
   vector<string> tag_list;
   bool found = TagGrammarFinder::FindTagGrammarFromFile(filename_for_bigrams,
                                                         &data, &tag_list);
@@ -93,6 +119,12 @@ int main(int argc, char *argv[]) {
   bool got_obs_data = CypherReader::GetObservedData(filename_for_cypher,
                                                     &observed_data,
                                                     &obs_symbols);
+//   cout << "ALL KNOWN KEYS\n";
+//   for (auto i = data.begin(); i != data.end(); ++i) {
+//     Notation key = i->first;
+//     cout << key << " => " << i->second << endl;
+//   }
+
   if (!got_obs_data)
     return 0;
   else if (EXTRA_PRINTING)
@@ -104,6 +136,12 @@ int main(int argc, char *argv[]) {
 //     cout << *i << endl;
 //   }
 //   cout << "end tags\n";
+//   cout << "AFTER DD: ALL KNOWN KEYS\n";
+//   for (auto i = data.begin(); i != data.end(); ++i) {
+//     Notation key = i->first;
+//     cout << key << " => " << i->second << endl;
+//   }
+
   PrepareObsTagProbs(observed_data, tag_list, obs_symbols, &data);
 
   TrellisAid::BuildTrellis(&nodes, &edges_to_update, &all_edges, observed_data,
@@ -111,10 +149,10 @@ int main(int argc, char *argv[]) {
   if (EXTRA_PRINTING) {
     cout << "Built trellis.\n";
     // if you want to write probabilities
-    cout << "printing probs...";
-    for (auto it = data.begin(); it != data.end(); ++it) {
-      cout << it->first << " " << it->second << endl;
-    }
+//     cout << "printing probs...";
+//     for (auto it = data.begin(); it != data.end(); ++it) {
+//       cout << it->first << " " << it->second << endl;
+//     }
   }
   cout << NUMBER_ITERATIONS << " iterations:" << endl;
 
