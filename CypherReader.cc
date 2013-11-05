@@ -10,13 +10,13 @@ bool CypherReader::GetObservedData(const string &filename, vector<string> *obser
     while (true) {
       string word;
       fin >> word;
-      if (fin.eof())
-        break;
       if (!word.empty()) {
         word = word.substr(1, word.size() - 2);  // Remove quotes.
         observed_data->push_back(word);
         obs_symbols->insert(word);
       }
+      if (fin.eof())
+        break;
     }
     return true;
   }
@@ -29,7 +29,8 @@ bool CypherReader::GetObservedData(const string &filename, vector<string> *obser
 //   }
 //   string filename = argv[1];
 //   vector<string> observed_data;
-//   CypherReader::GetObservedData(filename, &observed_data);
+//   set<string> obs_symbols;
+//   CypherReader::GetObservedData(filename, &observed_data, &obs_symbols);
 //   for (auto it = observed_data.begin(); it != observed_data.end(); ++it) {
 //     cout << *it << " ";
 //   }

@@ -21,15 +21,15 @@
 
 using namespace std;
 
-#define NUMBER_ITERATIONS 3
+#define NUMBER_ITERATIONS 20
 
-#define EXTRA_PRINTING true
+#define EXTRA_PRINTING false
 
 void DisambiguateDuplicates(const set<string> &obs_symbols,
                             vector<string> *tag_list,
                             map<Notation, double> *data) {
   // Alters all tags that have overlapping meanings with observed symbols.
-  // Updates data accordingly.
+  // Disambiguates by adding an '. Updates data accordingly.
   for (auto i = obs_symbols.begin(); i != obs_symbols.end(); ++i) {
     for (auto j = tag_list->begin(); j != tag_list->end(); ++j) {
 //       cout << "comparing " << *i << " with " << *j << endl;
@@ -58,7 +58,6 @@ void DisambiguateDuplicates(const set<string> &obs_symbols,
           if (old_key.repr() != new_key.repr()) {
             (*data)[new_key] = (*data)[old_key];
 //             cout << "altering keys: " << old_key << " to " << new_key << ", val=" << (*data)[new_key] << endl;
-            // REASON: erasing P(rr)!!!
             data->erase(old_key);
           }
         }
@@ -77,10 +76,11 @@ void PrepareObsTagProbs(const vector<string> &observed_data,
     for (auto tag = tag_list.begin(); tag != tag_list.end(); ++tag) {
       Notation nObsTagProb("P", {*obs}, Notation::GIVEN_DELIM, {*tag});
       (*data)[nObsTagProb] = (double) 1/obs_symbols.size();
+//       cout << "[==] " << nObsTagProb << endl;
     }
   }
-  // Deal with spaces in the substitute table: set P(any obs|space tag) to 0 and
-  // P(space tag|space obs) to 1.
+  // Deal with spaces in the substitute table: set
+  // P(any obs except space |space tag) to 0 and P(space obs|space tag) to 1.
   // "_" means "space" in the ciphertext letter sequence.
   // "_" means "pause" in the spoken spanish plaintext. Altered to "_'" for
   // uniqueness in DisambiguateDuplicates.
@@ -88,7 +88,7 @@ void PrepareObsTagProbs(const vector<string> &observed_data,
     Notation nAnythingGivenSpaceTag("P", {*obs}, Notation::GIVEN_DELIM, {"_'"});
     (*data)[nAnythingGivenSpaceTag] = 0;
   }
-  Notation nSpaceTagGivenSpaceObs("P", {"_'"}, Notation::GIVEN_DELIM, {"_"});
+  Notation nSpaceTagGivenSpaceObs("P", {"_"}, Notation::GIVEN_DELIM, {"_'"});
   (*data)[nSpaceTagGivenSpaceObs] = 1;
 
   // Also seed NotationConstants.
@@ -105,6 +105,11 @@ int main(int argc, char *argv[]) {
   vector<string> tag_list;
   bool found = TagGrammarFinder::FindTagGrammarFromFile(filename_for_bigrams,
                                                         &data, &tag_list);
+//   cout << "Tag list results\n";
+//   for (auto i = tag_list.begin(); i != tag_list.end(); ++i) {
+//     cout << " => " << *i << endl;
+//   }
+
   if (!found)
     return 0;
   else if (EXTRA_PRINTING)
@@ -123,6 +128,10 @@ int main(int argc, char *argv[]) {
 //   for (auto i = data.begin(); i != data.end(); ++i) {
 //     Notation key = i->first;
 //     cout << key << " => " << i->second << endl;
+//   }
+//   cout << "OBS SYMBOLS\n";
+//   for (auto i = obs_symbols.begin(); i != obs_symbols.end(); ++i) {
+//     cout << " => " << *i << endl;
 //   }
 
   if (!got_obs_data)
@@ -148,12 +157,13 @@ int main(int argc, char *argv[]) {
                            tag_list);
   if (EXTRA_PRINTING) {
     cout << "Built trellis.\n";
-    // if you want to write probabilities
-//     cout << "printing probs...";
-//     for (auto it = data.begin(); it != data.end(); ++it) {
-//       cout << it->first << " " << it->second << endl;
-//     }
   }
+  // if you want to write probabilities
+//   cout << "printing probs...";
+//   for (auto it = data.begin(); it != data.end(); ++it) {
+//     cout << it->first << " " << it->second << endl;
+//   }
+
   cout << NUMBER_ITERATIONS << " iterations:" << endl;
 
   Notation nObsSeq("P", observed_data, Notation::SEQ_DELIM);

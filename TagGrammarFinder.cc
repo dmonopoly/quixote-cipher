@@ -4,7 +4,6 @@
 #include "TagGrammarFinder.h"
 
 #define DO_MAIN false
-
 #define EXTRA_PRINTING false
 
 bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
@@ -116,10 +115,10 @@ int main(int argc, char *argv[]) {
   for (auto it = data.begin(); it != data.end(); ++it) {
     cout << it->first << " " << it->second << endl;
   }
-//   cout << "Tag list:\n";
-//   for (auto it = tag_list.begin(); it != tag_list.end(); ++it) {
-//     cout << *it << ",";
-//   }
+  cout << "Tag list:\n";
+  for (auto it = tag_list.begin(); it != tag_list.end(); ++it) {
+    cout << *it << ",";
+  }
   cout << endl;
   return 0;
 }
