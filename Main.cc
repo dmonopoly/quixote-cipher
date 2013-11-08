@@ -153,6 +153,7 @@ int main(int argc, char *argv[]) {
 
   PrepareObsTagProbs(observed_data, tag_list, obs_symbols, &data);
 
+  clock_t t = clock();
   TrellisAid::BuildTrellis(&nodes, &edges_to_update, &all_edges, observed_data,
                            tag_list);
   if (EXTRA_PRINTING) {
@@ -175,6 +176,8 @@ int main(int argc, char *argv[]) {
                                         &saved_obs_seq_probs,
                                         very_small_data_set);
   TrellisAid::DestroyTrellis(&nodes, &all_edges);
+  t = clock() - t; 
+  printf("It took me %lu clicks (%f seconds).\n", t, ((float)t)/CLOCKS_PER_SEC);
 
   ofstream fout("observed_data_probabilities.txt");
   for (int i = 0; i < saved_obs_seq_probs.size(); ++i) {
