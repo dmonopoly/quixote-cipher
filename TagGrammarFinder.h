@@ -7,7 +7,7 @@
 #include <vector>
 #include <set>
 
-#include "em-training-example/Notation.h"
+#include "EMViterbiPackage/Notation.h"
 
 using namespace std;
 

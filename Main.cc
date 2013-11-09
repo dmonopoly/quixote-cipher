@@ -8,13 +8,13 @@
 #include <vector>
 #include <utility>
 
-#include "em-training-example/BasicHelper.h"
-#include "em-training-example/NLPHelper.h"
-#include "em-training-example/Notation.h"
-#include "em-training-example/Node.h"
-#include "em-training-example/Edge.h"
-#include "em-training-example/NotationConstants.h"
-#include "em-training-example/TrellisAid.h"
+#include "EMViterbiPackage/BasicHelper.h"
+#include "EMViterbiPackage/Notation.h"
+#include "EMViterbiPackage/Node.h"
+#include "EMViterbiPackage/Edge.h"
+#include "EMViterbiPackage/NotationConstants.h"
+#include "EMViterbiPackage/NotationHelper.h"
+#include "EMViterbiPackage/TrellisAid.h"
 
 #include "CypherReader.h"
 #include "TagGrammarFinder.h"
@@ -76,7 +76,6 @@ void PrepareObsTagProbs(const vector<string> &observed_data,
     for (auto tag = tag_list.begin(); tag != tag_list.end(); ++tag) {
       Notation nObsTagProb("P", {*obs}, Notation::GIVEN_DELIM, {*tag});
       (*data)[nObsTagProb] = (double) 1/obs_symbols.size();
-//       cout << "[==] " << nObsTagProb << endl;
     }
   }
   // Deal with spaces in the substitute table: set
@@ -168,22 +167,20 @@ int main(int argc, char *argv[]) {
   cout << NUMBER_ITERATIONS << " iterations:" << endl;
 
   Notation nObsSeq("P", observed_data, Notation::SEQ_DELIM);
-  vector<double> saved_obs_seq_probs;
-  bool very_small_data_set = false;
+//   vector<double> saved_obs_seq_probs;
   TrellisAid::ForwardBackwardAndViterbi(NUMBER_ITERATIONS, nodes,
                                         edges_to_update, all_edges, &data,
-                                        observed_data, nObsSeq,
-                                        &saved_obs_seq_probs,
-                                        very_small_data_set);
+                                        observed_data); 
+//                                         &saved_obs_seq_probs);
   TrellisAid::DestroyTrellis(&nodes, &all_edges);
   t = clock() - t; 
   printf("It took me %lu clicks (%f seconds).\n", t, ((float)t)/CLOCKS_PER_SEC);
 
-  ofstream fout("observed_data_probabilities.txt");
-  for (int i = 0; i < saved_obs_seq_probs.size(); ++i) {
-    fout << saved_obs_seq_probs[i] << endl;
-  }
-  cout << "Values of " << nObsSeq << " have been written to "
-    "observed_data_probabilities.txt." << endl << endl;
+//   ofstream fout("observed_data_probabilities.txt");
+//   for (int i = 0; i < saved_obs_seq_probs.size(); ++i) {
+//     fout << saved_obs_seq_probs[i] << endl;
+//   }
+//   cout << "Values of " << nObsSeq << " have been written to "
+//     "observed_data_probabilities.txt." << endl << endl;
   return 0;
 }
