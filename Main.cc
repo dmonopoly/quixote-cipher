@@ -1,5 +1,6 @@
 #include <cassert>
 #include <ctime>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -54,7 +55,7 @@ void DisambiguateDuplicates(const set<string> &obs_symbols,
         }
         for (auto i = values_to_replace.begin(); i != values_to_replace.end(); ++i) {
           Notation old_key = i->first;
-          Notation new_key = i->second; 
+          Notation new_key = i->second;
           if (old_key.repr() != new_key.repr()) {
             (*data)[new_key] = (*data)[old_key];
 //             cout << "altering keys: " << old_key << " to " << new_key << ", val=" << (*data)[new_key] << endl;
@@ -100,7 +101,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
   string filename_for_bigrams = argv[1];
-  map<Notation, double> data;  // Storage for probabilities and counts.
+  map<Notation, double> data;  // Storage for log probabilities and counts.
   vector<string> tag_list;
   bool found = TagGrammarFinder::FindTagGrammarFromFile(filename_for_bigrams,
                                                         &data, &tag_list);
@@ -170,10 +171,10 @@ int main(int argc, char *argv[]) {
 //   vector<double> saved_obs_seq_probs;
   TrellisAid::ForwardBackwardAndViterbi(NUMBER_ITERATIONS, nodes,
                                         edges_to_update, all_edges, &data,
-                                        observed_data); 
+                                        observed_data);
 //                                         &saved_obs_seq_probs);
   TrellisAid::DestroyTrellis(&nodes, &all_edges);
-  t = clock() - t; 
+  t = clock() - t;
   printf("It took me %lu clicks (%f seconds).\n", t, ((float)t)/CLOCKS_PER_SEC);
 
 //   ofstream fout("observed_data_probabilities.txt");

@@ -12,6 +12,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -46,6 +47,9 @@ void ReplaceAll(string& str, const string& from, const string& to);
 vector<string> &Split(const string &s, char delim, vector<string> &elems);
 vector<string> Split(const string &s, char delim);
 
+// Adding logx + logy instead of x*y to avoid underflow.
+double AddLogs(double x, double y);
+
 // Useful printing method for 2 columns.
 template<typename A, typename B> void Print2(const A& a, const B& b) {
 	cout << fixed << setprecision(2);
@@ -61,7 +65,7 @@ template<typename A, typename B, typename C> void Print3(const A& a, const B& b,
 }
 
 // Useful writing method for 3 columns, like above.
-template<typename A, typename B, typename C> void Write3(ofstream &fout, 
+template<typename A, typename B, typename C> void Write3(ofstream &fout,
                                                          const A& a, const B& b,
                                                          const C& c) {
 	fout << fixed << setprecision(PRECISION);
