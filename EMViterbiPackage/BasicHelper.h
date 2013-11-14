@@ -47,8 +47,12 @@ void ReplaceAll(string& str, const string& from, const string& to);
 vector<string> &Split(const string &s, char delim, vector<string> &elems);
 vector<string> Split(const string &s, char delim);
 
-// Adding logx + logy instead of x*y to avoid underflow.
-double AddLogs(double x, double y);
+// Returns log(x) + log(y). Checks for invalid x and y.
+double TakeLogsAndSum(double x, double y);
+// Compute log(x + y) given logx and logy.
+double AddLogs(double logx, double logy);
+// Compute log(x - y) given logx and logy.
+double SubtractLogs(double logx, double logy);
 
 // Useful printing method for 2 columns.
 template<typename A, typename B> void Print2(const A& a, const B& b) {

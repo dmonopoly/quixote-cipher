@@ -19,7 +19,8 @@ namespace TagGrammarFinder {
   const string ARB_SOUND_PLACEHOLDER = "s_i";
 
   // Returns true if success.
-  bool FindTagGrammarFromFile(const string &filename, map<Notation, double> *data,
+  bool FindTagGrammarFromFile(const string &filename,
+                              map<Notation, double> *data,
                               vector<string> *tag_list);
 }
 #endif // End TAG_GRAMMAR_H_

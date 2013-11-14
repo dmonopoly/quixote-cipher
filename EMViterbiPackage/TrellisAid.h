@@ -2,6 +2,7 @@
 #define TRELLIS_H_
 
 #include <cassert>
+#include <cfloat>
 #include <cstdlib>
 #include <map>
 #include <unordered_map>

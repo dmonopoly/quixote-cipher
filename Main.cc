@@ -42,7 +42,8 @@ void DisambiguateDuplicates(const set<string> &obs_symbols,
         string new_val = ss.str();
         vector<pair<Notation, Notation> > values_to_replace; // old key, new key
         Notation key;
-        for (auto data_pair = data->begin(); data_pair != data->end(); ++data_pair) {
+        for (auto data_pair = data->begin(); data_pair != data->end();
+             ++data_pair) {
           key = data_pair->first;
 //           cout << "Inspecting key: " << key << endl;
           size_t pos = key.repr().find(old_val);
@@ -53,12 +54,12 @@ void DisambiguateDuplicates(const set<string> &obs_symbols,
             values_to_replace.push_back(make_pair(old_key, key));
           }
         }
-        for (auto i = values_to_replace.begin(); i != values_to_replace.end(); ++i) {
+        for (auto i = values_to_replace.begin(); i != values_to_replace.end();
+             ++i) {
           Notation old_key = i->first;
           Notation new_key = i->second;
           if (old_key.repr() != new_key.repr()) {
             (*data)[new_key] = (*data)[old_key];
-//             cout << "altering keys: " << old_key << " to " << new_key << ", val=" << (*data)[new_key] << endl;
             data->erase(old_key);
           }
         }
@@ -93,6 +94,14 @@ void PrepareObsTagProbs(const vector<string> &observed_data,
 
   // Also seed NotationConstants.
   (*data)[NotationConstants::p1] = 1;
+}
+
+void ChangeAbsoluteProbsToLogProbs(map<Notation, double> *data) {
+  for (auto it = data->begin(); it != data->end(); ++it) {
+    if (it->first.is_probability()) {
+      it->second = log(it->second);
+    }
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -152,7 +161,7 @@ int main(int argc, char *argv[]) {
 //   }
 
   PrepareObsTagProbs(observed_data, tag_list, obs_symbols, &data);
-
+  ChangeAbsoluteProbsToLogProbs(&data);
   clock_t t = clock();
   TrellisAid::BuildTrellis(&nodes, &edges_to_update, &all_edges, observed_data,
                            tag_list);
