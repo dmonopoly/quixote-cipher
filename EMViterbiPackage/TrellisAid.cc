@@ -232,7 +232,7 @@ namespace TrellisAid {
                                  alpha[e->src->repr()] + data->at(e->repr()));
 
             fout << "sum as it changes: alpha + data:" << alpha[e->src->repr()]
-              << "+" << data->at(e->repr()) << "="  << sum << endl;
+              << " +  " << data->at(e->repr()) << " = "  << sum << endl;
             fout << Basic::Tab(1) << "edge rep: " << e->src->repr() <<
               ", e->repr: " << e->repr() << endl;
           }
