@@ -136,12 +136,10 @@ double SubtractLogs(double logx, double logy) {
   if (logx - logy > 32) {
     return logx;
   } else if (logy - logx > 32) {
-    cerr << "SubtractLogs Error (>32): tried computing log(x-y) for y>x.\n";
     return logy;
   } else if (logx > logy) {
     return logx + log(1 - exp(logy - logx));
   } else {
-    cerr << "SubtractLogs Error: tried computing log(x-y) for y>x.\n";
     return logy + log(1 - exp(logx - logy));
   }
 }

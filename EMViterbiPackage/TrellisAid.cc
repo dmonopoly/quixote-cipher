@@ -217,24 +217,27 @@ namespace TrellisAid {
     alpha[nodes.front()->repr()] = log(1);
     beta[nodes.back()->repr()] = log(1);
     //TMP TODO: REMOVE
-    ofstream fout("alphaback.txt");
+//     ofstream fout("alphaback.txt");
     for (int iter_count = 0; iter_count < num_iterations; ++iter_count) {
       if (EXTRA_PRINTING)
         cout << "Forward pass... ";
       // Forward pass. Assumes start node is at i = 0.
       try {
         for (int i = 1; i < nodes.size(); ++i) {
-          double sum = 0; // TODO: is this right?
+          double sum = -DBL_MAX;
           for (Edge *e : nodes[i]->parent_edges) {
             //tmp
-//             cout << e->repr() << endl;
+//             fout << "sum before: " << sum << endl;
+//             fout << "alpha, data:" << alpha[e->src->repr()] << ",  " <<
+//               data->at(e->repr()) << endl;
+            // original:
+            // sum += alpha[e->src->repr()] * data->at(e->repr());
+//             fout << "alpha + data: " << alpha[e->src->repr()] + data->at(e->repr()) << endl;
             sum = Basic::AddLogs(sum,
-                                 alpha[e->src->repr()] + data->at(e->repr()));
-
-            fout << "sum as it changes: alpha + data:" << alpha[e->src->repr()]
-              << " +  " << data->at(e->repr()) << " = "  << sum << endl;
-            fout << Basic::Tab(1) << "edge rep: " << e->src->repr() <<
-              ", e->repr: " << e->repr() << endl;
+                alpha[e->src->repr()] + data->at(e->repr()));
+//             fout << "AddLogs(sum, result above): " << sum;
+//             fout << Basic::Tab(1) << "edge rep: " << e->src->repr() <<
+//               ", e->repr: " << e->repr() << endl;
           }
           // tmp
 //           fout << "--" << endl;
@@ -243,15 +246,15 @@ namespace TrellisAid {
                 ": " << sum << endl;
           }
           // TMP: TODO: DELETE
-          if (nodes[i]->repr() == nodes.back()->repr()) {
-            fout << "forward pass back: " << sum << endl;
-          }
-          fout << "alpha value for " << nodes[i]->repr() << "beforehand: " <<
-            alpha[nodes[i]->repr()] << endl;
+//           if (nodes[i]->repr() == nodes.back()->repr()) {
+//             fout << "forward pass back: " << sum << endl;
+//           }
+//           fout << "alpha value for " << nodes[i]->repr() << " beforehand: " <<
+//             alpha[nodes[i]->repr()] << endl;
           alpha[nodes[i]->repr()] = sum;
-          fout << "alpha value for " << nodes[i]->repr() << "after: " <<
-            alpha[nodes[i]->repr()] << endl;
-          fout << "===" << endl;
+//           fout << "alpha value for " << nodes[i]->repr() << " after: " <<
+//             alpha[nodes[i]->repr()] << endl;
+//           fout << "===" << endl;
         }
       } catch (out_of_range &e) {
         cerr << "Out of range error in forward pass: " << e.what() << endl;
@@ -265,10 +268,11 @@ namespace TrellisAid {
       }
       // Backward pass. Assumes end node is at i = size - 1.
       for (int i = nodes.size() - 2; i >= 0; --i) {
-        double sum = 0;
+        double sum = -DBL_MAX;
         for (Edge *e : nodes[i]->child_edges) {
           sum = Basic::AddLogs(sum,
-                               beta[e->dest->repr()] + data->at(e->repr()));
+              beta[e->dest->repr()] + data->at(e->repr()));
+          // Original:
 //           sum += beta[e->dest->repr()] * data->at(e->repr());
         }
         if (EXTRA_PRINTING) {
@@ -323,12 +327,12 @@ namespace TrellisAid {
                                 (*data)[count_key]);
 //           total_fract_counts[e->dest->tag] -= (*data)[count_key];
         }
-        fout << "back value: " << alpha[nodes.back()->repr()] << endl;
+//         fout << "back value: " << alpha[nodes.back()->repr()] << endl;
         (*data)[count_key] = Basic::AddLogs((*data)[count_key],
                                             alpha[e->src->repr()] +
                                             data->at(e->repr()) +
-                                            beta[e->dest->repr()]) -
-                                            alpha[nodes.back()->repr()];
+                                            beta[e->dest->repr()] -
+                                            alpha[nodes.back()->repr()]);
         // Original:
 //         (*data)[count_key] += (alpha[e->src->repr()] * data->at(e->repr())
 //                                * beta[e->dest->repr()]) /
@@ -357,10 +361,10 @@ namespace TrellisAid {
         Edge *e = select_edges[i];
         Notation n_count_key("C", {e->dest->tag, e->dest->word}, Notation::AND_DELIM);
 
-        fout << "================\n";
-        fout << "data at n count key: " << (*data)[n_count_key] << "; " 
-          << "total fract count at tag: " << total_fract_counts.at(e->dest->tag)
-          << endl;
+//         fout << "================\n";
+//         fout << "data at n count key: " << (*data)[n_count_key] << "; " 
+//           << "total fract count at tag: " << total_fract_counts.at(e->dest->tag)
+//           << endl;
         (*data)[e->repr()] = (*data)[n_count_key] -
           total_fract_counts.at(e->dest->tag);
         // Original:
@@ -369,7 +373,7 @@ namespace TrellisAid {
 
 //         if ((*data)[e->repr()] == 0)
 //           fout << "GOT ZERO!" << endl;
-        fout << "================\n";
+//         fout << "================\n";
       }
 
       // Update probability of observed data sequence. This should increase
