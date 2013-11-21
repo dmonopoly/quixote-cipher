@@ -1,0 +1,6 @@
+20 iterations:
+
+--Viterbi results--
+The highest probability found belongs to P(_ p r i m e r a _ p a r t e _ d e l _ i n g,_' p' r' T i' o r' a' _' d' e' n' t' o _' k o s _' d' e' l'): -41.9035
+Best matching tag sequence: _'p'r'Ti'or'a'_'d'e'n't'o_'kos_'d'e'l'
+It took me 18940470 clicks (18.940470 seconds).
