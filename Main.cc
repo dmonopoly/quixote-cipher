@@ -88,7 +88,9 @@ void PrepareObsTagProbs(const vector<string> &observed_data,
   }
   Notation nSpaceTagGivenSpaceObs("P", {"_"}, Notation::GIVEN_DELIM, {"_'"});
   (*data)[nSpaceTagGivenSpaceObs] = 1;
+}
 
+void SeedNotationConstants(map<Notation, double> *data) {
   // Also seed NotationConstants.
   (*data)[NotationConstants::p1] = 1;
 }
@@ -132,6 +134,7 @@ int main(int argc, char *argv[]) {
 
   DisambiguateDuplicates(obs_symbols, &tag_list, &data);
   PrepareObsTagProbs(observed_data, tag_list, obs_symbols, &data);
+  SeedNotationConstants(&data);
   ChangeAbsoluteProbsToLogProbs(&data);
   clock_t t = clock();
   TrellisAid::BuildTrellis(&nodes, &edges_to_update, &all_edges, observed_data,

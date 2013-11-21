@@ -1,3 +1,11 @@
+// Reads count data and determines P(x), P(x|y), P(y|x), etc. for all tags x,y.
+// Accepts file of following format:
+// 47344 "a" "_"
+// 39946 "s" "_"
+// 39429 "e" "_"
+// 36767 "o" "_"
+// 27626 "_" "e"
+
 #ifndef TAG_GRAMMAR_H_
 #define TAG_GRAMMAR_H_
 

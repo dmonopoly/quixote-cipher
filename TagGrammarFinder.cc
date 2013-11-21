@@ -1,4 +1,3 @@
-// Reads count data and determines P(x), P(x|y), P(y|x), etc. for all tags x,y.
 // Main method outputs results (quick test).
 
 #include "TagGrammarFinder.h"
