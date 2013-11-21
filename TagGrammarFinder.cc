@@ -34,20 +34,17 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
       sound2 = sound2.substr(1, sound2.size() - 2);
       sounds.insert(sound1);
       sounds.insert(sound2);
-
       Notation n_count_seq("C", {sound1}, TagGrammarFinder::SEQ_DELIM, {sound2});
       Notation n_count_seq_total(SIGMA + "C", {sound1}, TagGrammarFinder::SEQ_DELIM,
           {ARB_SOUND_PLACEHOLDER});
       bigram_counts[n_count_seq] = count; // should only encounter once 
       bigram_counts[n_count_seq_total] += count;
-
       // Single probabilities. Treat C(s1) = SUM_i C(s1 s_i).
       Notation n_count("C", {sound1});  // C(s1), followed by SUM_i C(s_i).
       unigram_counts[n_count] += count;
       unigram_counts[n_count_total] += count;
     }
     fin.close();
-
     // Determine tag grammar probabilities.
     // Unigrams.
     for (auto s1 = sounds.begin(); s1 != sounds.end(); ++s1) {
@@ -67,11 +64,9 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
         Notation n_count_seq("C", {*s1}, TagGrammarFinder::SEQ_DELIM, {*s2});
         Notation n_count_seq_total(SIGMA + "C", {*s1},
             TagGrammarFinder::SEQ_DELIM, {ARB_SOUND_PLACEHOLDER});
-
         // If no key found, then just set to 0.
         if (bigram_counts.find(n_count_seq) == bigram_counts.end() ||
-            bigram_counts.find(n_count_seq_total) == bigram_counts.end())
-        {
+            bigram_counts.find(n_count_seq_total) == bigram_counts.end()) {
           if (EXTRA_PRINTING) {
             if (bigram_counts.find(n_count_seq) == bigram_counts.end())
               cout << "Not found: " << n_count_seq << endl;
@@ -91,7 +86,6 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
         }
       }
     }
-
     // Pass sounds to tag_list.
     for (auto it = sounds.begin(); it != sounds.end(); ++it) {
       tag_list->push_back(*it);

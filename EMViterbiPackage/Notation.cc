@@ -16,7 +16,7 @@ Notation::Notation(string predicate, initializer_list<string> first_args) {
   this->first_delimiter = Notation::SEQ_DELIM;
   this->second_delimiter = Notation::NULL_DELIM;
 
-  this->repr_ = this->repr();
+  this->repr_ = this->GenerateRepr();
 }
 Notation::Notation(string predicate, vector<string> first) {
   this->predicate = predicate;
@@ -25,7 +25,7 @@ Notation::Notation(string predicate, vector<string> first) {
   this->first_delimiter = Notation::SEQ_DELIM;
   this->second_delimiter = Notation::NULL_DELIM;
 
-  this->repr_ = this->repr();
+  this->repr_ = this->GenerateRepr();
 }
 Notation::Notation(string predicate, initializer_list<string> first_args, string first_delim) {
   this->predicate = predicate;
@@ -35,7 +35,7 @@ Notation::Notation(string predicate, initializer_list<string> first_args, string
   this->first_delimiter = first_delim;
   this->second_delimiter = Notation::NULL_DELIM;
 
-  this->repr_ = this->repr();
+  this->repr_ = this->GenerateRepr();
 }
 Notation::Notation(string predicate, vector<string> first, string first_delim) {
   this->predicate = predicate;
@@ -44,7 +44,7 @@ Notation::Notation(string predicate, vector<string> first, string first_delim) {
   this->first_delimiter = first_delim;
   this->second_delimiter = Notation::NULL_DELIM;
 
-  this->repr_ = this->repr();
+  this->repr_ = this->GenerateRepr();
 }
 Notation::Notation(string predicate, initializer_list<string> first_args,
            string delimiter, initializer_list<string> second_args) {
@@ -57,7 +57,7 @@ Notation::Notation(string predicate, initializer_list<string> first_args,
   this->first_delimiter = Notation::SEQ_DELIM;
   this->second_delimiter = Notation::SEQ_DELIM;
 
-  this->repr_ = this->repr();
+  this->repr_ = this->GenerateRepr();
 }
 Notation::Notation(string predicate, vector<string> first, string delimiter,
                    vector<string> second) {
@@ -68,12 +68,10 @@ Notation::Notation(string predicate, vector<string> first, string delimiter,
   this->first_delimiter = Notation::SEQ_DELIM;
   this->second_delimiter = Notation::SEQ_DELIM;
 
-  this->repr_ = this->repr();
+  this->repr_ = this->GenerateRepr();
 }
 
-string Notation::repr() const {
-  // TODO: could optimize with repr_ instance field, but then must update it
-  // appropriately, overload = assignment, etc.... have an update_repr method.
+string Notation::GenerateRepr() const {
   stringstream ss;
   ss << this->predicate << "(";
   for (int i = 0; i < this->first.size()-1; ++i)
@@ -90,7 +88,10 @@ string Notation::repr() const {
   return ss.str();
 }
 
-ostream& operator<<(ostream& out, const Notation& n) {
-    return out << n.repr();
+string Notation::repr() const {
+  return GenerateRepr();
 }
 
+ostream& operator<<(ostream& out, const Notation& n) {
+  return out << n.repr();
+}

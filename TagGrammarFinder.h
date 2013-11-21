@@ -15,7 +15,7 @@ namespace TagGrammarFinder {
   const string GIVEN_DELIM = "|";
   const string AND_DELIM = ",";
   const string SEQ_DELIM = " ";
-  const string SIGMA = "SUM_i "; // key helper for Notation
+  const string SIGMA = "SUM_i ";
   const string ARB_SOUND_PLACEHOLDER = "s_i";
 
   // Returns true if success.

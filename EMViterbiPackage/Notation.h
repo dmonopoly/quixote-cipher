@@ -13,14 +13,21 @@ using namespace std;
 
 class Notation {
  private:
-  string repr_;
+  string repr_;  // Unused, but could be for small optimization.
+  string GenerateRepr() const;
  public:
   static const string GIVEN_DELIM;
   static const string AND_DELIM;
   static const string SEQ_DELIM;
   static const string NULL_DELIM;
-
-  string predicate;  // P or C. TODO: include SIGMA for sums...
+ 
+  // "P" or "C". Can prepend with SIGMA="SUM_i" if you want.
+  // Example: 
+  //     const string SIGMA = "SUM_i ";
+  //     const string ARB_SOUND_PLACEHOLDER = "s_i";
+  //   Then use Notation objects like
+  //     Notation n_count_total(SIGMA + "C", {ARB_SOUND_PLACEHOLDER});
+  string predicate;
   // Denotes the delimiter separating 'first' and 'second'.
   string delimiter;
   // Delimiters within each list. This specificity allows P(ABA|t1,t2,t3).
@@ -56,8 +63,10 @@ class Notation {
   bool is_count() const {
     return this->predicate == "C";
   }
-
   bool operator <(const Notation& rhs) const {
+    // Ensure storage in map<Notation, double> data structure works. This makes
+    // sure constructing Notation objects on the fly indeed replaces previous
+    // Notation objects who had the same repr() value.
     return this->repr() < rhs.repr();
   }
 };

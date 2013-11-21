@@ -22,7 +22,7 @@
 
 using namespace std;
 
-#define NUMBER_ITERATIONS 50
+#define NUMBER_ITERATIONS 10
 #define EXTRA_PRINTING false
 #define SHOW_PROBS_BEFORE_EM false
 
