@@ -22,9 +22,9 @@
 
 using namespace std;
 
-#define NUMBER_ITERATIONS 20
-
+#define NUMBER_ITERATIONS 50
 #define EXTRA_PRINTING false
+#define SHOW_PROBS_BEFORE_EM false
 
 void DisambiguateDuplicates(const set<string> &obs_symbols,
                             vector<string> *tag_list,
@@ -33,7 +33,6 @@ void DisambiguateDuplicates(const set<string> &obs_symbols,
   // Disambiguates by adding an '. Updates data accordingly.
   for (auto i = obs_symbols.begin(); i != obs_symbols.end(); ++i) {
     for (auto j = tag_list->begin(); j != tag_list->end(); ++j) {
-//       cout << "comparing " << *i << " with " << *j << endl;
       if (*i == *j) {
         stringstream ss;
         ss << *j << "'";
@@ -45,12 +44,10 @@ void DisambiguateDuplicates(const set<string> &obs_symbols,
         for (auto data_pair = data->begin(); data_pair != data->end();
              ++data_pair) {
           key = data_pair->first;
-//           cout << "Inspecting key: " << key << endl;
           size_t pos = key.repr().find(old_val);
           if (pos != string::npos) {
             Notation old_key = key;
             NotationHelper::ReplaceSymbol(old_val, new_val, &key);
-//             cout << "changed key: " << key << endl;
             values_to_replace.push_back(make_pair(old_key, key));
           }
         }
@@ -114,11 +111,6 @@ int main(int argc, char *argv[]) {
   vector<string> tag_list;
   bool found = TagGrammarFinder::FindTagGrammarFromFile(filename_for_bigrams,
                                                         &data, &tag_list);
-//   cout << "Tag list results\n";
-//   for (auto i = tag_list.begin(); i != tag_list.end(); ++i) {
-//     cout << " => " << *i << endl;
-//   }
-
   if (!found)
     return 0;
   else if (EXTRA_PRINTING)
@@ -133,33 +125,12 @@ int main(int argc, char *argv[]) {
   bool got_obs_data = CypherReader::GetObservedData(filename_for_cypher,
                                                     &observed_data,
                                                     &obs_symbols);
-//   cout << "ALL KNOWN KEYS\n";
-//   for (auto i = data.begin(); i != data.end(); ++i) {
-//     Notation key = i->first;
-//     cout << key << " => " << i->second << endl;
-//   }
-//   cout << "OBS SYMBOLS\n";
-//   for (auto i = obs_symbols.begin(); i != obs_symbols.end(); ++i) {
-//     cout << " => " << *i << endl;
-//   }
-
   if (!got_obs_data)
     return 0;
   else if (EXTRA_PRINTING)
     cout << "Found cyphertext.\n";
 
   DisambiguateDuplicates(obs_symbols, &tag_list, &data);
-//   cout << "new tags: \n";
-//   for (auto i = tag_list.begin(); i != tag_list.end(); ++i) {
-//     cout << *i << endl;
-//   }
-//   cout << "end tags\n";
-//   cout << "AFTER DD: ALL KNOWN KEYS\n";
-//   for (auto i = data.begin(); i != data.end(); ++i) {
-//     Notation key = i->first;
-//     cout << key << " => " << i->second << endl;
-//   }
-
   PrepareObsTagProbs(observed_data, tag_list, obs_symbols, &data);
   ChangeAbsoluteProbsToLogProbs(&data);
   clock_t t = clock();
@@ -168,29 +139,22 @@ int main(int argc, char *argv[]) {
   if (EXTRA_PRINTING) {
     cout << "Built trellis.\n";
   }
-  // if you want to write probabilities
-//   cout << "printing probs...";
-//   for (auto it = data.begin(); it != data.end(); ++it) {
-//     cout << it->first << " " << it->second << endl;
-//   }
+
+  if (SHOW_PROBS_BEFORE_EM) {
+    cout << "Printing probs..." << endl;
+    for (auto it = data.begin(); it != data.end(); ++it) {
+      cout << it->first << " " << it->second << endl;
+    }
+  }
 
   cout << NUMBER_ITERATIONS << " iterations:" << endl;
 
   Notation nObsSeq("P", observed_data, Notation::SEQ_DELIM);
-//   vector<double> saved_obs_seq_probs;
   TrellisAid::ForwardBackwardAndViterbi(NUMBER_ITERATIONS, nodes,
                                         edges_to_update, all_edges, &data,
                                         observed_data);
-//                                         &saved_obs_seq_probs);
   TrellisAid::DestroyTrellis(&nodes, &all_edges);
   t = clock() - t;
   printf("It took me %lu clicks (%f seconds).\n", t, ((float)t)/CLOCKS_PER_SEC);
-
-//   ofstream fout("observed_data_probabilities.txt");
-//   for (int i = 0; i < saved_obs_seq_probs.size(); ++i) {
-//     fout << saved_obs_seq_probs[i] << endl;
-//   }
-//   cout << "Values of " << nObsSeq << " have been written to "
-//     "observed_data_probabilities.txt." << endl << endl;
   return 0;
 }

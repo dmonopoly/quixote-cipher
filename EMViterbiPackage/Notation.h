@@ -23,7 +23,6 @@ class Notation {
   string predicate;  // P or C. TODO: include SIGMA for sums...
   // Denotes the delimiter separating 'first' and 'second'.
   string delimiter;
-
   // Delimiters within each list. This specificity allows P(ABA|t1,t2,t3).
   string first_delimiter, second_delimiter;
 
