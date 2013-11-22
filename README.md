@@ -10,7 +10,8 @@ Research.
 ### Code Organization
 - EMViterbiPackage contains the main code for running EM and Viterbi.
 - GeneratedData contains example outputs.
-- GivenCounts contains count data.
+- LanguageModel contains count data.
+- Cyphers contains cyphers to break.
 
 ## Running
 Compile using cmake. Example:
@@ -24,8 +25,9 @@ sure you do `cmake -Dtest=ON ..` first.
 
 Running Main:
 
-    ./sound-decipher ../GivenCounts/corpus.spanish.sound_bigrams.txt
-    ../GivenCounts/corpus.spanish.quixote.written_very_short.txt > output.txt
+  Example 1, all one line:
+    ./sound-decipher ../LanguageModels/corpus.spanish.sound_bigrams.txt
+    ../Cyphers/corpus.spanish.quixote.written_very_short.txt > output.txt
 
   Running on the very short sequence takes roughly 20 seconds. For long
   sequences, it can take quite a while.
