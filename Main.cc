@@ -111,8 +111,8 @@ int main(int argc, char *argv[]) {
   string filename_for_bigrams = argv[1];
   map<Notation, double> data;  // Storage for log probabilities and counts.
   vector<string> tag_list;
-  bool found = TagGrammarFinder::FindTagGrammarFromFile(filename_for_bigrams,
-                                                        &data, &tag_list);
+  bool found = TagGrammarFinder::GetTagGrammarFromOrganizedRows(
+      filename_for_bigrams, &data, &tag_list);
   if (!found)
     return 0;
   else if (EXTRA_PRINTING)

@@ -1,10 +1,4 @@
 // Reads count data and determines P(x), P(x|y), P(y|x), etc. for all tags x,y.
-// Accepts file of following format:
-// 47344 "a" "_"
-// 39946 "s" "_"
-// 39429 "e" "_"
-// 36767 "o" "_"
-// 27626 "_" "e"
 
 #ifndef TAG_GRAMMAR_H_
 #define TAG_GRAMMAR_H_
@@ -27,8 +21,14 @@ namespace TagGrammarFinder {
   const string ARB_SOUND_PLACEHOLDER = "s_i";
 
   // Returns true if success.
-  bool FindTagGrammarFromFile(const string &filename,
-                              map<Notation, double> *data,
-                              vector<string> *tag_list);
+  // Accepts file of following format:
+  // 47344 a _
+  // 39946 s _
+  // 39429 e _
+  // 36767 o _
+  // 27626 _ e
+  bool GetTagGrammarFromOrganizedRows(const string &filename,
+                                      map<Notation, double> *data,
+                                      vector<string> *tag_list);
 }
 #endif // End TAG_GRAMMAR_H_

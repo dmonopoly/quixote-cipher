@@ -5,9 +5,9 @@
 #define DO_MAIN false
 #define EXTRA_PRINTING false
 
-bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
-                                              map<Notation, double> *data,
-                                              vector<string> *tag_list) {
+bool TagGrammarFinder::GetTagGrammarFromOrganizedRows(
+    const string &filename, map<Notation, double> *data,
+    vector<string> *tag_list) {
   ifstream fin(filename.c_str());
   if (fin.fail()) {
     cerr << "Could not open file " << filename << endl;
@@ -28,14 +28,13 @@ bool TagGrammarFinder::FindTagGrammarFromFile(const string &filename,
       fin >> sound1 >> sound2;
       if (EXTRA_PRINTING)
         cout << "Read " << count << " " << sound1 << " " << sound2 << endl;
-      // Remove quotes.
-      sound1 = sound1.substr(1, sound1.size() - 2);
-      sound2 = sound2.substr(1, sound2.size() - 2);
       sounds.insert(sound1);
       sounds.insert(sound2);
-      Notation n_count_seq("C", {sound1}, TagGrammarFinder::SEQ_DELIM, {sound2});
-      Notation n_count_seq_total(SIGMA + "C", {sound1}, TagGrammarFinder::SEQ_DELIM,
-          {ARB_SOUND_PLACEHOLDER});
+      Notation n_count_seq("C", {sound1}, TagGrammarFinder::SEQ_DELIM,
+                           {sound2});
+      Notation n_count_seq_total(SIGMA + "C", {sound1},
+                                 TagGrammarFinder::SEQ_DELIM,
+                                 {ARB_SOUND_PLACEHOLDER});
       bigram_counts[n_count_seq] = count; // should only encounter once 
       bigram_counts[n_count_seq_total] += count;
       // Single probabilities. Treat C(s1) = SUM_i C(s1 s_i).
