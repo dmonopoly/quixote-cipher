@@ -9,6 +9,8 @@
 using namespace std;
 
 namespace CypherReader {
+  // Obtains observed data from a file where each character is separated by a
+  // space and each space in the observed data is represented by an underscore.
   // Returns true if success. Also stores a set of unique observed cypher
   // symbols.
   bool GetObservedData(const string &filename, vector<string> *observed_data,

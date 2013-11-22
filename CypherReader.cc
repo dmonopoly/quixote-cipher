@@ -1,5 +1,11 @@
 #include "CypherReader.h"
 
+// Extra option: If true, accepts cyphers of the following format:
+// "_" "p" "r" "i" "m" "e" "r" "a" "_" "p" "a" "r" "t" "e" "_" "d" "e" "l" 
+// "_" "c" "a" "p" "I" "t" "u" "l" "o" "_" "p" "r" "i" "m" "e" "r" "o" "_" 
+// Otherwise, same thing, but with no quotes.
+#define FORMAT_HAS_QUOTES false
+
 bool CypherReader::GetObservedData(const string &filename, vector<string> *observed_data,
                      set<string> *obs_symbols) {
   ifstream fin(filename.c_str());
@@ -11,7 +17,8 @@ bool CypherReader::GetObservedData(const string &filename, vector<string> *obser
       string word;
       fin >> word;
       if (!word.empty()) {
-        word = word.substr(1, word.size() - 2);  // Remove quotes.
+        if (FORMAT_HAS_QUOTES)
+          word = word.substr(1, word.size() - 2);  // Remove quotes.
         observed_data->push_back(word);
         obs_symbols->insert(word);
       }
