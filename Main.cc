@@ -23,8 +23,8 @@
 using namespace std;
 
 #define NUMBER_ITERATIONS 10
-#define EXTRA_PRINTING false
-#define SHOW_PROBS_BEFORE_EM false
+#define EXTRA_PRINTING true
+#define SHOW_PROBS_BEFORE_EM true
 
 void DisambiguateDuplicates(const set<string> &obs_symbols,
                             vector<string> *tag_list,

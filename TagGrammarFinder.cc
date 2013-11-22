@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
   string filename = argv[1];
   map<Notation, double> data;
   vector<string> tag_list;
-  TagGrammarFinder::FindTagGrammarFromFile(filename, &data, &tag_list);
+  TagGrammarFinder::GetTagGrammarFromOrganizedRows(filename, &data, &tag_list);
   cout << "Data:\n";
   for (auto it = data.begin(); it != data.end(); ++it) {
     cout << it->first << " " << it->second << endl;
