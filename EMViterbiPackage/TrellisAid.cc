@@ -1,6 +1,6 @@
 #include "TrellisAid.h"
 
-#define PRINT_VITERBI_RESULTS_OFTEN true
+#define PRINT_VITERBI_RESULTS_OFTEN false
 #define EXTRA_PRINTING false
 
 namespace TrellisAid {
