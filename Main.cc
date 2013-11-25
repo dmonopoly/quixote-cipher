@@ -105,6 +105,7 @@ void ChangeAbsoluteProbsToLogProbs(map<Notation, double> *data) {
 
 int main(int argc, char *argv[]) {
   if (argc != 3) {
+    // TODO: allow trigam counts file + probabilities file too.
     cerr << "Usage: ./<exec> <bigram-counts-file> <cyphertext>" << endl;
     return 0;
   }
