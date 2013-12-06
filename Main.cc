@@ -74,11 +74,11 @@ void PrepareObsTagProbs(const vector<string> &observed_data,
   for (auto obs = observed_data.begin(); obs != observed_data.end(); ++obs) {
     for (auto tag = tag_list.begin(); tag != tag_list.end(); ++tag) {
       Notation nObsTagProb("P", {*obs}, Notation::GIVEN_DELIM, {*tag});
-      (*data)[nObsTagProb] = (double) 1/obs_symbols.size();
+      (*data)[nObsTagProb] = (double) 1/obs_symbols.size(); // obs - 1 technically for space
     }
   }
   // Deal with spaces in the substitute table: set
-  // P(any obs except space |space tag) to 0 and P(space obs|space tag) to 1.
+  // P(any obs except space|space tag) to 0 and P(space obs|space tag) to 1.
   // "_" means "space" in the ciphertext letter sequence.
   // "_" means "pause" in the spoken spanish plaintext. Altered to "_'" for
   // uniqueness in DisambiguateDuplicates.
@@ -86,8 +86,8 @@ void PrepareObsTagProbs(const vector<string> &observed_data,
     Notation nAnythingGivenSpaceTag("P", {*obs}, Notation::GIVEN_DELIM, {"_'"});
     (*data)[nAnythingGivenSpaceTag] = 0;
   }
-  Notation nSpaceTagGivenSpaceObs("P", {"_"}, Notation::GIVEN_DELIM, {"_'"});
-  (*data)[nSpaceTagGivenSpaceObs] = 1;
+  Notation nSpaceObsGivenSpaceTag("P", {"_"}, Notation::GIVEN_DELIM, {"_'"});
+  (*data)[nSpaceObsGivenSpaceTag] = 1;
 }
 
 void SeedNotationConstants(map<Notation, double> *data) {
