@@ -153,7 +153,6 @@ int main(int argc, char *argv[]) {
 
   cout << NUMBER_ITERATIONS << " iterations:" << endl;
 
-  Notation nObsSeq("P", observed_data, Notation::SEQ_DELIM);
   TrellisAid::ForwardBackwardAndViterbi(NUMBER_ITERATIONS, nodes,
                                         edges_to_update, all_edges, &data,
                                         observed_data);
