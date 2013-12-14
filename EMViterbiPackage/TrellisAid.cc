@@ -192,8 +192,8 @@ namespace TrellisAid {
     if (EXTRA_PRINTING)
       cout << "Beginning Forward-Backward." << endl;
     // Value: true if already used. Main purpose is for checking while
-    // accumulating fractional counts in counting pass, but also used in output
-    // setup.
+    // accumulating fractional counts in counting pass. WARNING: Using this is
+    // premature optimization...
     map<Notation, bool> already_used;
 
     // PRECONDITION: The order of nodes/edges is already in topological order.
@@ -274,30 +274,46 @@ namespace TrellisAid {
           cout << Basic::Tab(1) << "Getting count key from edge " << e->repr()
               << ": " << count_key << endl;
           cout << Basic::Tab(1) << alpha[e->src->repr()] <<
-              "<-alpha edge prob->" << data->at(e->repr()) << endl;
-          cout << Basic::Tab(1) << beta[e->dest->repr()] << "<-beta end->" <<
+              "<-alpha, edge prob->" << data->at(e->repr()) << endl;
+          cout << Basic::Tab(1) << beta[e->dest->repr()] << "<-beta, end->" <<
               alpha[nodes.back()->repr()] << endl;
         }
         // If we already saw this count key, subtract all previously accumulated
         // values for that count_key from total_fract_counts before updating
         // (*data)[count_key]. This compensates for adding too-early cXA's when
         // computing the total fractional counts for C(X,w_i).
+        // Warning: This kind of complexity if premature optimization: the
+        // cleaner way is to compute total_fract_counts after this loop instead
+        // of accumulating and subtracting as you go.
         if (already_used[count_key]) {
           total_fract_counts[e->notation.second[0]] =
             Basic::SubtractLogs(total_fract_counts[e->notation.second[0]],
                                 (*data)[count_key]);
         }
-        (*data)[count_key] = Basic::AddLogs((*data)[count_key],
-                                            alpha[e->src->repr()] +
-                                            data->at(e->repr()) +
-                                            beta[e->dest->repr()] -
-                                            alpha[nodes.back()->repr()]);
+        if (EXTRA_PRINTING) {
+          cout << Basic::Tab(1) << "Data at count key before: " << 
+            (*data)[count_key] << endl;
+          double val = Basic::AddLogs((*data)[count_key],
+                         alpha[e->src->repr()] +
+                         data->at(e->repr()) +
+                         beta[e->dest->repr()] -
+                         alpha[nodes.back()->repr()]);
+          cout << Basic::Tab(2) << "Resulting data for count key = " << val <<
+            endl;
+          (*data)[count_key] = val;
+        } else {
+          (*data)[count_key] = Basic::AddLogs((*data)[count_key],
+                                              alpha[e->src->repr()] +
+                                              data->at(e->repr()) +
+                                              beta[e->dest->repr()] -
+                                              alpha[nodes.back()->repr()]);
+        }
         already_used[count_key] = true;
 
         if (total_fract_counts[e->notation.second[0]] == 0) {
           // If this is the first time we encounter this key, the default is 0,
           // which we actually want to be negative infinity. The sum is just the
-          // count_key log value itself.
+          // count_key log value itself. (Due to premature optimization, again.)
           total_fract_counts[e->notation.second[0]] = (*data)[count_key];
         } else {
           total_fract_counts[e->notation.second[0]] =
@@ -306,8 +322,8 @@ namespace TrellisAid {
         }
       }
 
-      // Update the unknown probabilities that we want to find. Use them in the
-      // next iteration.
+      // Normalization step: Update the unknown probabilities that we want to
+      // find. Use them in the next iteration.
       for (int i = 0; i < select_edges.size(); ++i) {
         Edge *e = select_edges[i];
         Notation n_count_key("C", {e->notation.second[0]}, Notation::AND_DELIM,
