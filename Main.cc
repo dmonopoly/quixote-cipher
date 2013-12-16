@@ -98,7 +98,11 @@ void SeedNotationConstants(map<Notation, double> *data) {
 void ChangeAbsoluteProbsToLogProbs(map<Notation, double> *data) {
   for (auto it = data->begin(); it != data->end(); ++it) {
     if (it->first.is_probability()) {
-      it->second = log(it->second);
+      if (it->second == 0) {
+        it->second = -DBL_MAX;
+      } else {
+        it->second = log(it->second);
+      }
     }
   }
 }

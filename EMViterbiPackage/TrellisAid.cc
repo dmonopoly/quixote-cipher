@@ -1,6 +1,6 @@
 #include "TrellisAid.h"
 
-#define PRINT_VITERBI_RESULTS_OFTEN false
+#define PRINT_VITERBI_RESULTS_OFTEN true
 #define EXTRA_PRINTING false
 
 namespace TrellisAid {
@@ -298,6 +298,13 @@ namespace TrellisAid {
                          data->at(e->repr()) +
                          beta[e->dest->repr()] -
                          alpha[nodes.back()->repr()]);
+          cout << Basic::Tab(1) << "The 2 parameters to AddLogs: " <<
+            (*data)[count_key] << " and " << 
+                         alpha[e->src->repr()] +
+                         data->at(e->repr()) +
+                         beta[e->dest->repr()] -
+                         alpha[nodes.back()->repr()] << endl;
+
           cout << Basic::Tab(2) << "Resulting data for count key = " << val <<
             endl;
           (*data)[count_key] = val;
