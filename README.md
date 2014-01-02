@@ -52,3 +52,15 @@ TagGrammarFinder also:
 
     # Revert back to normal by changing DO_MAIN back to true, and then
     cmake .. -Dtag-grammar=off
+
+## Notes on results
+To differentiate tags from observed symbols from the cypher, which could be the
+same letter, tags that would have been identical to a observed symbol have an
+added apostrophe after.
+
+Example: If x could represent both a observed symbol encountered in the cypher
+and a tag, then the tag is altered to be x'.
+
+Also, underscore - i.e., _ - means space.
+
+Log probabilities are used, so expect those in the output. 
