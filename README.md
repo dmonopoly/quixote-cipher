@@ -53,6 +53,14 @@ TagGrammarFinder also:
     # Revert back to normal by changing DO_MAIN back to true, and then
     cmake .. -Dtag-grammar=off
 
+## Notes on input files
+CypherReader, which is used by Main.cc, accepts files where **each
+symbol is separated by a normal space** (i.e. the space you
+get by hitting the spacebar). So a single symbol could be represented as *xyz*,
+and three symbols where the middle one is a space *symbol* could be
+
+    xyz _ bts
+
 ## Notes on results
 To differentiate tags from observed symbols from the cypher, which could be the
 same letter, tags that would have been identical to a observed symbol have an
