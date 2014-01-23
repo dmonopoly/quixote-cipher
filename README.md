@@ -11,7 +11,7 @@ Research.
 - EMViterbiPackage contains the main code for running EM and Viterbi.
 - GeneratedData contains example outputs.
 - LanguageModel contains count data.
-- Cyphers contains cyphers to break.
+- Ciphers contains ciphers to break.
 
 ## Running
 Compile using cmake. Example:
@@ -28,7 +28,7 @@ Running Main:
   Example 1 - Spanish cypher (all one line):
 
     ./sound-decipher ../LanguageModels/corpus.spanish.sound_bigrams.txt
-    ../Cyphers/corpus.spanish.quixote.written_very_short.txt > output.txt
+    ../Ciphers/corpus.spanish.quixote.written_very_short.txt > output.txt
 
   Running on the very short sequence takes roughly 20 seconds. For long
   sequences, it can take quite a while.
@@ -36,7 +36,7 @@ Running Main:
   Example 2 - English cypher (all one line):
 
     ./sound-decipher ../LanguageModels/eng.bigram.counts.txt
-    ../Cyphers/eng.cypher.short.txt > eng-output.txt
+    ../Ciphers/eng.cypher.short.txt > eng-output.txt
 
 CypherReader can be compiled and run independently:
 
